@@ -1,5 +1,5 @@
 :root {
-  /* Dark theme tokens */
+  /* Dark theme tokens (default) */
   --nm-bg: #070914;
   --nm-surface: #0f1428;
   --nm-surface-2: #0b1022;
@@ -23,14 +23,34 @@
   --nm-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
 
+/* Light theme overrides (applied when App sets <html data-theme="light">) */
+html[data-theme='light'] {
+  --nm-bg: #f6f7fb;
+  --nm-surface: #ffffff;
+  --nm-surface-2: #f1f5f9;
+
+  --nm-border: rgba(15, 23, 42, 0.14);
+  --nm-border-2: rgba(15, 23, 42, 0.1);
+
+  --nm-text: #0f172a;
+  --nm-muted: rgba(15, 23, 42, 0.62);
+
+  /* Accents remain the same for brand consistency */
+  --nm-primary: #3b82f6;
+  --nm-accent: #06b6d4;
+  --nm-danger: #ef4444;
+
+  --nm-shadow: 0 18px 65px rgba(15, 23, 42, 0.14);
+}
+
 .nm-root {
   min-height: 100vh;
   color: var(--nm-text);
-  /* Darker, higher-contrast backdrop while keeping the same "retro glow" vibe */
-  background: radial-gradient(1000px 600px at 15% 10%, rgba(59, 130, 246, 0.22), transparent 58%),
-    radial-gradient(900px 520px at 85% 0%, rgba(6, 182, 212, 0.18), transparent 54%),
-    radial-gradient(820px 680px at 40% 100%, rgba(148, 163, 184, 0.12), transparent 58%),
-    linear-gradient(180deg, var(--nm-bg), #04050d 82%);
+  /* Theme-aware backdrop while keeping the same "retro glow" vibe */
+  background: radial-gradient(1000px 600px at 15% 10%, rgba(59, 130, 246, 0.18), transparent 58%),
+    radial-gradient(900px 520px at 85% 0%, rgba(6, 182, 212, 0.14), transparent 54%),
+    radial-gradient(820px 680px at 40% 100%, rgba(148, 163, 184, 0.1), transparent 58%),
+    linear-gradient(180deg, var(--nm-bg), color-mix(in srgb, var(--nm-bg) 82%, #000 18%) 82%);
   font-family: var(--nm-font);
 }
 
@@ -40,11 +60,86 @@
   justify-content: space-between;
   padding: 18px 18px;
   border-bottom: 1px solid var(--nm-border);
-  background: linear-gradient(180deg, rgba(15, 20, 40, 0.92), rgba(10, 14, 30, 0.62));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--nm-surface) 70%, transparent),
+    color-mix(in srgb, var(--nm-surface) 45%, transparent)
+  );
   position: sticky;
   top: 0;
   z-index: 5;
   backdrop-filter: blur(12px);
+}
+
+.nm-topbar__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nm-themeToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--nm-muted);
+  font-family: var(--nm-mono);
+  font-size: 12px;
+  user-select: none;
+}
+
+.nm-themeToggle__label {
+  letter-spacing: 0.3px;
+}
+
+.nm-themeToggle__input {
+  /* Visually hidden but accessible */
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+.nm-themeToggle__track {
+  width: 42px;
+  height: 24px;
+  border-radius: 999px;
+  border: 1px solid var(--nm-border);
+  background: color-mix(in srgb, var(--nm-surface-2) 70%, transparent);
+  position: relative;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--nm-border) 60%, transparent);
+}
+
+.nm-themeToggle__thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  position: absolute;
+  top: 50%;
+  left: 3px;
+  transform: translateY(-50%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.7));
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.25);
+  transition: transform 180ms ease, background 180ms ease;
+}
+
+/* Checked = dark theme */
+.nm-themeToggle__input:checked + .nm-themeToggle__track {
+  border-color: color-mix(in srgb, var(--nm-primary) 55%, var(--nm-border));
+  background: linear-gradient(180deg, rgba(59, 130, 246, 0.35), rgba(6, 182, 212, 0.18));
+}
+
+.nm-themeToggle__input:checked + .nm-themeToggle__track .nm-themeToggle__thumb {
+  transform: translate(18px, -50%);
+  background: linear-gradient(180deg, rgba(238, 240, 255, 0.95), rgba(238, 240, 255, 0.72));
+}
+
+/* Keyboard focus */
+.nm-themeToggle__input:focus-visible + .nm-themeToggle__track {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--nm-accent) 22%, transparent);
 }
 
 .nm-brand__title {
@@ -76,7 +171,11 @@
 .nm-sidebar {
   border: 1px solid var(--nm-border);
   border-radius: var(--nm-radius);
-  background: linear-gradient(180deg, rgba(15, 20, 40, 0.92), rgba(10, 14, 30, 0.86));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--nm-surface) 88%, transparent),
+    color-mix(in srgb, var(--nm-surface-2) 90%, transparent)
+  );
   box-shadow: var(--nm-shadow);
   padding: 14px;
 }
@@ -110,8 +209,8 @@
   gap: 10px;
   padding: 10px 10px;
   border-radius: var(--nm-radius-sm);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(4, 6, 18, 0.55);
+  border: 1px solid color-mix(in srgb, var(--nm-border) 75%, transparent);
+  background: color-mix(in srgb, var(--nm-surface-2) 72%, transparent);
   color: var(--nm-text);
   cursor: pointer;
 }
@@ -143,7 +242,11 @@
 .nm-main {
   border: 1px solid var(--nm-border);
   border-radius: var(--nm-radius);
-  background: linear-gradient(180deg, rgba(15, 20, 40, 0.75), rgba(10, 14, 30, 0.8));
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--nm-surface) 82%, transparent),
+    color-mix(in srgb, var(--nm-surface-2) 88%, transparent)
+  );
   box-shadow: var(--nm-shadow);
   padding: 14px;
   min-width: 0;
@@ -187,9 +290,9 @@
 .nm-input,
 .nm-textarea {
   width: 100%;
-  border: 1px solid rgba(255, 255, 255, 0.16);
+  border: 1px solid color-mix(in srgb, var(--nm-border) 80%, transparent);
   border-radius: 12px;
-  background: rgba(3, 5, 14, 0.62);
+  background: color-mix(in srgb, var(--nm-surface-2) 78%, transparent);
   color: var(--nm-text);
   padding: 10px 12px;
   outline: none;
@@ -271,9 +374,9 @@
 }
 
 .nm-note {
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  border: 1px solid color-mix(in srgb, var(--nm-border) 75%, transparent);
   border-radius: var(--nm-radius);
-  background: rgba(3, 5, 14, 0.52);
+  background: color-mix(in srgb, var(--nm-surface-2) 72%, transparent);
   padding: 12px;
 }
 
@@ -315,11 +418,11 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid color-mix(in srgb, var(--nm-border) 82%, transparent);
   border-radius: 999px;
   padding: 6px 10px;
   font-size: 12px;
-  background: rgba(12, 16, 34, 0.55);
+  background: color-mix(in srgb, var(--nm-surface-2) 70%, transparent);
   cursor: default;
 }
 
@@ -370,8 +473,12 @@
 .nm-modal {
   width: min(760px, 100%);
   border-radius: var(--nm-radius);
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background: linear-gradient(180deg, rgba(15, 20, 40, 0.94), rgba(10, 14, 30, 0.94));
+  border: 1px solid color-mix(in srgb, var(--nm-border) 85%, transparent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--nm-surface) 92%, transparent),
+    color-mix(in srgb, var(--nm-surface-2) 92%, transparent)
+  );
   box-shadow: var(--nm-shadow);
   overflow: hidden;
 }

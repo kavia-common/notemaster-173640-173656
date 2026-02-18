@@ -1,6 +1,37 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import './App.css';
 
+const THEME_STORAGE_KEY = 'nm_theme';
+
+/**
+ * Reads the user's theme preference from localStorage, falling back to OS preference.
+ * Never throws (e.g., when storage is blocked).
+ */
+function getInitialTheme() {
+  try {
+    const stored = window.localStorage.getItem(THEME_STORAGE_KEY);
+    if (stored === 'light' || stored === 'dark') return stored;
+  } catch (e) {
+    // ignore
+  }
+
+  const prefersDark =
+    typeof window !== 'undefined' &&
+    window.matchMedia &&
+    window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+  return prefersDark ? 'dark' : 'light';
+}
+
+/**
+ * Applies the theme to the document for CSS-based theming.
+ * We use a data attribute so CSS can switch variables app-wide.
+ */
+function applyThemeToDocument(theme) {
+  if (typeof document === 'undefined') return;
+  document.documentElement.setAttribute('data-theme', theme);
+}
+
 function getApiBase() {
   // CRA exposes env vars at build time. Preview manifest provides API_BASE/BACKEND_URL.
   return (
@@ -49,6 +80,9 @@ function parseTagsInput(value) {
     .filter(Boolean);
 }
 
+/**
+ * Top-level application shell + notes CRUD UI.
+ */
 // PUBLIC_INTERFACE
 function App() {
   const [notes, setNotes] = useState([]);
@@ -63,7 +97,19 @@ function App() {
   const [editorOpen, setEditorOpen] = useState(false);
   const [editing, setEditing] = useState(null); // note or null
 
+  const [theme, setTheme] = useState(() => getInitialTheme());
+
   const apiBase = useMemo(() => getApiBase(), []);
+
+  useEffect(() => {
+    // Ensure theme is applied as early as possible and kept in sync.
+    applyThemeToDocument(theme);
+    try {
+      window.localStorage.setItem(THEME_STORAGE_KEY, theme);
+    } catch (e) {
+      // ignore (storage may be blocked)
+    }
+  }, [theme]);
 
   async function refreshTags() {
     const data = await apiFetch('/tags');
@@ -198,6 +244,22 @@ function App() {
         </div>
 
         <div className="nm-topbar__actions">
+          <label className="nm-themeToggle" htmlFor="nm-theme-toggle">
+            <span className="nm-themeToggle__label">Theme</span>
+            <input
+              id="nm-theme-toggle"
+              className="nm-themeToggle__input"
+              type="checkbox"
+              role="switch"
+              aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
+              checked={theme === 'dark'}
+              onChange={e => setTheme(e.target.checked ? 'dark' : 'light')}
+            />
+            <span className="nm-themeToggle__track" aria-hidden="true">
+              <span className="nm-themeToggle__thumb" aria-hidden="true" />
+            </span>
+          </label>
+
           <button className="nm-btn nm-btn--primary" onClick={onCreateNew}>
             + New note
           </button>

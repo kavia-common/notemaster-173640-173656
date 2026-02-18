@@ -8,8 +8,8 @@
     "react-scripts": "^5.0.1"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "cross-env REACT_APP_API_BASE=$API_BASE REACT_APP_BACKEND_URL=$BACKEND_URL react-scripts start",
+    "build": "cross-env REACT_APP_API_BASE=$API_BASE REACT_APP_BACKEND_URL=$BACKEND_URL react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
